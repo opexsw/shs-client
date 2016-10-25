@@ -1,0 +1,22 @@
+{
+  "services": [
+    {
+      "hostname": "172.17.0.3",
+      "output": "Port 6557 on nagios-labs-dev-tip-syclo.mo.sap.corp not reachable",
+      "service": "Current Load",
+      "state": "2"
+    },
+    {
+      "hostname": "nagios-labs-pss-dev-emea.mo.sap.corp",
+      "output": "Port 6557 on nagios-labs-pss-dev-emea.mo.sap.corp not reachable",
+      "service": "Livestatus on Port 6557",
+      "state": "2"
+    },
+    {
+      "hostname": "bgsof006.sofl.sap.corp",
+      "output": "ERROR: unknown host: bgsof006.sofl.sap.corp",
+      "service": "SM Update Nagios Client - ci1week",
+      "state": "2"
+    }
+  ]
+}

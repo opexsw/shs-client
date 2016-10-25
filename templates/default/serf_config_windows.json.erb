@@ -1,0 +1,17 @@
+{
+  "node_name": "<%= @node_name %>",
+  "bind": "<%= @node_ip %>",
+  "encrypt_key": "<%= @encrypt_key %>",
+  "log_level": "err",
+  "tags": {
+    "HANDLER_DEBUG": "<%= @debug %>"
+  },
+  "event_handlers": [
+    "user:<%= @node_name %>=C:\\serf\\shs_handler.bat",
+    "user:<%= @node_name_upcase %>=C:\\serf\\shs_handler.bat",
+    "user:RELOAD_CONFIG=taskkill /F /im serf.exe >nul 2>nul && cmd /c c:\\serf\\serf_silent_run.vbs"
+  ],
+  "start_join": [
+    "<%= @shs_server_ip %>"
+  ]
+}

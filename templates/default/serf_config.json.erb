@@ -1,0 +1,17 @@
+{
+  "node_name": "<%= @node_name %>",
+  "bind": "<%= @node_ip %>",
+  "encrypt_key": "<%= @encrypt_key %>",
+  "log_level": "err",
+  "tags": {
+    "HANDLER_DEBUG": "<%= @debug %>"
+  },
+  "event_handlers": [
+    "user:<%= @node_name %>=/usr/local/serf/shs_handler.sh",
+    "user:<%= @node_name_upcase %>=/usr/local/serf/shs_handler.sh",
+    "user:RELOAD_CONFIG=/etc/init.d/serf reload"
+  ],
+  "start_join": [
+    "<%= @shs_server_ip %>"
+  ]
+}

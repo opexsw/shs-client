@@ -1,0 +1,4 @@
+#!/bin/bash
+#/usr/bin/snmptrap -v 2c -c $2 $1 '' NAGIOS-NOTIFY-MIB::nSvcEvent nSvcHostname s "$3" nSvcDesc s "$4" nSvcStateID i $5 nSvcOutput s "$6"
+
+/usr/bin/snmptrap -v 3 -n "" -a SHA -A Password4snmp -x AES -X Password4snmp -l authPriv -u shsuser -e 0x8000000001020304 $1 '' NAGIOS-NOTIFY-MIB::nSvcEvent nSvcHostname s "$3" nSvcDesc s "$4" nSvcStateID i $5 nSvcOutput s "$6"

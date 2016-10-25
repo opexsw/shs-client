@@ -1,0 +1,63 @@
+if (${Env:SERF_USER_EVENT}.Contains(${Env:SERF_SELF_NAME})) {
+	$healingscriptremote = $args
+        if (${Env:SERF_TAG_HANDLER_DEBUG} -eq "true" -and $healingscriptremote)
+	{
+		Get-Date -outvariable Time
+    	"$Time - DEBUG:Received Payload from server: $healingscriptremote" | out-file C:\Windows\temp\selfhealingscript.log -Append
+	}
+	else
+	{
+		Get-Date -outvariable Time
+    	"$Time - DEBUG:No Payload received from server, nothing to do" | out-file C:\Windows\temp\selfhealingscript.log -Append
+		Exit
+	}
+	$healingscriptname = [io.path]::GetFileName($healingscriptremote)
+	$healingscripturl = "http://<%= @shs_server_ip %>/$healingscriptremote"
+	$healingscriptlocal = "C:\\Windows\\Temp\\$healingscriptname"
+	Test-Path C:\Windows\Temp\selfhealingscript.log -outvariable logfile
+	if (-Not ($logfile) ) 
+	{
+		New-Item C:\Windows\Temp\selfhealingscript.log -type file
+	}
+	#Check if the healing script is already running. IF so do not do anything.
+	$returncode = [bool](wmic PROCESS get COMMANDLINE | Select-string $healingscriptlocal)
+	if ( $returncode ){
+		Get-Date -outvariable Time
+	    "$Time - DEBUG:${healingscriptname} already running" | out-file "C:\Windows\Temp\selfhealingscript.log" -Append
+	    Exit
+	}
+	#Validate if it is a power shell script .ps1 extension
+	if ($healingscripturl -like '*.ps1') {
+	    $client = new-object System.Net.WebClient
+		Test-Path $healingscriptlocal -outvariable scriptfile
+		if ( -Not($scriptfile) ) {
+			Get-Date -outvariable Time
+    		"$Time - ERROR:Exception in downloading SelfHealing script from $healingscripturl" | out-file "C:\Windows\Temp\selfhealingscript.log" -Append
+			Exit
+		}
+		if (${Env:SERF_TAG_HANDLER_DEBUG} -eq "true")
+		{
+			Get-Date -outvariable Time
+    		"$Time - DEBUG:Downloaded SelfHealingScript from $healingscripturl" | out-file C:\Windows\Temp\selfhealingscript.log -Append
+		}
+		& PowerShell -File "$healingscriptlocal" >> C:\Windows\Temp\selfhealingscript.log 2>&1
+  		$scriptreturncode = echo $?	
+		if (${Env:SERF_TAG_HANDLER_DEBUG} -eq "true")
+		{
+			Get-Date -outvariable Time
+    	"$Time - DEBUG:Executed SelfHealingScript $healingscriptlocal with return code $scriptreturncode" | out-file C:\Windows\Temp\selfhealingscript.log -Append
+		}
+		Remove-Item -path "$healingscriptlocal" -force
+		if (${Env:SERF_TAG_HANDLER_DEBUG} -eq "true")
+		{
+			Get-Date -outvariable Time
+    	"$Time - DEBUG:Removed SelfHealingScript $healingscriptlocal" | out-file C:\Windows\Temp\selfhealingscript.log -Append
+		}
+		Exit
+	}
+	else {
+		Get-Date -outvariable Time
+    	"$Time - ERROR:SelfHealingScript at $healingscripturl is not a Powershell Script" | out-file "C:\Windows\Temp\selfhealingscript.log" -Append
+		Exit
+	}
+}

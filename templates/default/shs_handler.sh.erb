@@ -1,0 +1,36 @@
+#!/bin/sh
+matchFound=$(echo ${SERF_USER_EVENT} | grep -i ${SERF_SELF_NAME})
+if [ ! -z $matchFound ]; then
+    read line
+    script_name=$(basename $line)
+    #Check if the healing script is already running. IF so do not do anything.
+    if [ "1" = `ps -eaf | grep ${script_name} | grep -v grep | wc -l` ]; then
+        echo "${date} - DEBUG:${script_name} already running" >> /var/log/SHS/selfhealingscript.log
+        exit 0;
+    fi
+    /usr/bin/wget http://<%= @shs_server_ip %>/$line -O /tmp/$script_name > /dev/null 2>&1
+    return_code=$?
+    if [ $return_code = "0" ]; then
+			if [ "${SERF_TAG_HANDLER_DEBUG}" = "true" ]; then
+				date=`date`
+				echo "${date} - DEBUG:Downloaded SelfHealingScript from http://<%= @shs_server_ip %>/$line" >> /var/log/SHS/selfhealingscript.log
+			fi
+			chmod a+x /tmp/${script_name}
+      /tmp/${script_name} >> /var/log/SHS/selfhealingscript.log 2>&1
+      script_return_code=$?
+			if [ "${SERF_TAG_HANDLER_DEBUG}" = "true" ]; then
+				date=`date`
+				echo "${date} - DEBUG:Executed SelfHealingScript /tmp/$script_name with return code $script_return_code" >> /var/log/SHS/selfhealingscript.log
+			fi
+      rm -rf /tmp/${script_name}
+			if [ "${SERF_TAG_HANDLER_DEBUG}" = "true" ]; then
+				date=`date`
+				echo "${date} - DEBUG:Removed SelfHealingScript /tmp/$script_name" >> /var/log/SHS/selfhealingscript.log
+			fi
+			exit 0
+		else
+			date=`date`
+			echo "${date} - ERROR:SelfHealingScript $line not found. Return code = $return_code." >> /var/log/SHS/selfhealingscript.log
+			exit 0
+		fi
+fi

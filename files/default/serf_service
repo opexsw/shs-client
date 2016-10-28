@@ -39,7 +39,6 @@ start() {
       echo "$NAME is already running"
     fi
 }
-
 stop() {
     find_pid
     if [ -z "$FOUND_PID" ]; then
@@ -73,8 +72,6 @@ status() {
     echo "$NAME is running : $FOUND_PID"
   fi
 }
-
-
 reload() {
   find_pid
   if [ -z "$FOUND_PID" ]; then
